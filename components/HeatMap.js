@@ -40,7 +40,7 @@ class HeatMap extends React.Component {
   componentDidMount() {
     var self = this;
     setTimeout(() => {
-      self.setState({loading: false}); }, 1000);
+      self.setState({loading: false}); }, 2000);
   }
   render() {
     const {year, name} = this.props
