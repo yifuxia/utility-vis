@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import React from 'react';
 import HeatMap from '../components/HeatMap';
+import DC_Charts from '../components/DC_Charts';
 
 class App extends React.Component {
 	render(){
@@ -23,6 +24,7 @@ class App extends React.Component {
 		return (
 			<div id="app" >
 				<HeatMap />	
+				<DC_Charts />
 			</div>
 		)
 	}

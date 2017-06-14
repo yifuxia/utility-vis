@@ -58,6 +58,15 @@
 		      }
 		}
 	})
+	
+	$('#show_DC').on('click', function(){
+		$('#DC_charts').show()
+	})
+
+	$('#close_DC').on('click', function(){
+		$('#DC_charts').hide()
+	})
+
 })()
 /*
 var grid_position_animation = new TWEEN.Tween(cube.position).to({

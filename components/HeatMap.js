@@ -64,7 +64,7 @@ class HeatMap extends React.Component {
       })
     
 
-   color_scale = d3.scaleLinear().domain([-1*d3.max(data.map(d => d.CDD)), 0, d3.max(data.map(d => d.HDD))])
+   color_scale = d3.scale.linear().domain([-1*d3.max(data.map(d => d.CDD)), 0, d3.max(data.map(d => d.HDD))])
       .range(['red','#f7f7f7','blue']);
     
     setTimeout(function(){
