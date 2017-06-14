@@ -11,7 +11,7 @@ class DC_Charts extends React.Component {
   componentDidMount() {
     var self = this;
     setTimeout(() => {
-      self.setState({loading: false}); }, 2000);
+      self.setState({loading: false}); }, 1000);
   }
   render() {
     let season_colors = d3.scale.ordinal()
@@ -26,16 +26,36 @@ class DC_Charts extends React.Component {
 
     let temp_chart = dc.barChart('#temp_chart');
     let load_chart = dc.barChart('#load_chart');
+    let load_avg_chart = dc.rowChart('#load_avg_chart');
     let year_chart = dc.rowChart('#year_chart');
     let month_chart = dc.rowChart('#month_chart');
     let week_chart = dc.rowChart('#week_chart');
     let season_chart = dc.pieChart('#season_chart');
+    let dataCount = dc.dataCount('.dc-data-count');
+    let dataTable = dc.dataTable('.dc-data-table');
     
     let temp = data.dimension(d => d.CDD == 0 ? Math.floor(65 - d.HDD) : Math.floor(65 + d.CDD));
     let temp_group = temp.group();
 
-    let load = data.dimension(d => Math.floor(d.daily_load));
+    let load = data.dimension(d => d.daily_load.toFixed(1));
     let load_group = load.group();
+
+    let load_avg = data.dimension(d => 'average daily load');
+    let load_avg_group = load_avg.group().reduce(
+      function(p, v){
+        ++p.count
+        p.total += v.daily_load
+        return p
+      },
+      function(p, v){
+        --p.count
+        p.total -= v.daily_load
+        return p
+      },
+      function(){
+        return {count:0, total:0}
+      }
+    );
 
     let year = data.dimension(d => d.year);
     let year_group = year.group().reduceSum(d => d.daily_load);
@@ -62,7 +82,7 @@ class DC_Charts extends React.Component {
 
     temp_chart
       .width(800)
-      .height(150)
+      .height(100)
       .margins({top: 10, right: 50, bottom: 30, left: 40})
       .dimension(temp)
       .group(temp_group)
@@ -89,19 +109,38 @@ class DC_Charts extends React.Component {
 
       load_chart
       .width(800)
-      .height(150)
+      .height(100)
       .margins({top: 10, right: 50, bottom: 30, left: 40})
       .dimension(load)
       .group(load_group)
       .elasticY(true)
       .centerBar(true)
+      .turnOnControls(true)
       .barPadding(.3)
       .round(dc.round.floor)
-      .alwaysUseRounding(true)
+      //.alwaysUseRounding(true)
       .x(d3.scale.linear().domain([8, 55]))
       .renderHorizontalGridLines(true)
-      temp_chart.yAxis().ticks(5);
-      temp_chart.xUnits(function(){return 120;});
+      load_chart.yAxis().ticks(5);
+      load_chart.xUnits(function(){return 400;});
+
+      load_avg_chart
+      .width(800)
+      .height(50)
+      .margins({top: 0, left: 40, right: 40, bottom: 30})
+      .group(load_avg_group)
+      .dimension(load_avg)
+      //.x(d3.scale.linear().domain([0, 55]))
+      .valueAccessor(p => p.value.count > 0 ? (p.value.total / p.value.count) : 0)
+      //.ordinalColors(['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f'])
+      .label(function (d) {
+          return d.key;
+      })
+      .title(p => p.value.count > 0 ? (p.value.total / p.value.count) : 0)
+      .xAxis().ticks(10);
+
+      load_avg_chart.x(d3.scale.linear().range([0,(load_avg_chart.width()-50 - 40)]).domain([0,55]));
+      load_avg_chart.xAxis().scale(load_avg_chart.x());
       
       
       year_chart
@@ -120,15 +159,17 @@ class DC_Charts extends React.Component {
       .elasticX(true)
       .xAxis().ticks(4);
 
+      let monthmap = ['nan','Jan.', 'Feb.','Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.','Sep',
+        'Oct.','Nov.','Dec.']
       month_chart
       .width(250)
-      .height(200)
+      .height(300)
       .margins({top: 0, left: 10, right: 10, bottom: 30})
       .group(month_group)
       .dimension(month)
       .ordinalColors(['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928'])
       .label(function (d) {
-          return d.key;
+          return monthmap[d.key];
       })
       .title(function (d) {
           return d.value;
@@ -162,7 +203,42 @@ class DC_Charts extends React.Component {
       .elasticX(true)
       .xAxis().ticks(4);
       
+      dataCount
+      .dimension(data)
+      .group(all)
+      .html({
+            some: '<strong>%filter-count</strong> selected out of <strong>%total-count</strong> records' +
+                ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();\'>Reset All</a>',
+            all: 'All records selected. Please click on the graph to apply filters.'
+        });
 
+      dataTable 
+        .dimension(year)
+        .group(function(d){
+          return (d.year + '-' +d.month + '-' + d.day);
+        })
+        .columns([
+          {
+              label: "Date",
+              format: function (d) { return d.year + '-' +d.month + '-' + d.day; }
+          },
+          {
+              label: "Temperature",
+              format: d => d.CDD == 0 ? (65 - d.HDD).toFixed(1) : (65 + d.CDD).toFixed(1)
+          },
+          {
+              label: "Daily load",
+              format: function (d) { return d.daily_load; }
+          },
+          {
+              label: "Utility",
+              format: function (d) { return d.NAME; }
+          }
+      ]).sortBy(function (d) {
+          console.log(d);
+            return d.daily_load;
+        })
+      .order(d3.ascending)
 
       dc.renderAll();
     }

@@ -8,6 +8,7 @@ import DC_Charts from '../components/DC_Charts';
 class App extends React.Component {
 	render(){
 		d3.csv('./public/data/vis-data.csv', function(data){
+			console.log(data[0]);
 			data.forEach(function (d) {
 	        d.CDD = +d.CDD
 	        d.HDD = +d.HDD

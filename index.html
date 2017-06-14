@@ -13,6 +13,10 @@
 			display: inline-block;
 			vertical-align: top;
 		}
+		table, th, td {
+		    border: 1px solid black;
+		    text-align: center;
+		}
 	</style>
 	<!-- Latest compiled and minified CSS -->
 </head>
@@ -22,12 +26,12 @@
 		<canvas id="canvas" style="z-index: -1;"></canvas>
 	</div>
 	<div style="background:rgba(0,0,0,0);width:30vw; position:absolute; top:0;left:35vw;text-align:center">
-	    <select id="utility_select" style="font-size:1rem;margin-top:10px">
+	    <select id="utility_select" style="font-size:1rem;margin-top:5vh">
 	      <option value="PSE&G">PSE&G</option>
 	      <option value="PECO ENERGY">PECO ENERGY</option>
 	      <option value="ATLANTIC CITY ELECTRIC">ATLANTIC CITY ELECTRIC</option>
 	    </select>
-	    <select id="year_select" style="font-size:1.5rem;margin-top:10px">
+	    <select id="year_select" style="font-size:1.5rem;margin-top:1vh">
 	      <option value="2010">2010</option>
 	      <option value="2011">2011</option>
 	      <option value="2012">2012</option>
@@ -38,16 +42,32 @@
 	    </select>
 	    <p id="show_daily_load" style='color:white;cursor: pointer;'>SHOW daily load</p>
 	    <p id="month_avg" style="color:white;cursor:pointer">SHOW monthly average Degree Day</p>
-	    <p id="show_DC" style='color:white;cursor: pointer;'>Expole MORE</p>
+	    <p id="show_DC" style='color:white;cursor: pointer;'>Go back</p>
 	</div>
-	<div id='DC_charts' style="display:none;background:rgba(255,255,255,1);height:100vh;width:100vw;position:absolute;top:0">
+
+	<div id='DC_charts' style="display:block;background:rgba(255,255,255,1);height:100vh;width:100vw;position:absolute;top:0">
+
 		<div style="width:1000px;position: relative; margin-left:calc((100vw - 1000px) / 2 )">
-			<h4 style="cursor:pointer" id='close_DC'>return</h4>
+			<p style="position:absolute">Please click on the graph to apply filter.</p>
+			<p style="cursor:pointer;text-align:right;color:green" id='close_DC'>Explore more</p>
 			<hr>
 			<div style="margin-left:100px;display:block">
 				<div>
-					<p>Daily load distribution</p>
-					<div id="load_chart"></div>
+					<h4>Daily load distribution</h4>
+					<div id="load_chart">
+						Current filter: <span class='filter'></span>				          
+					</div>
+				</div>
+			</div>
+			<div style="margin-left:100px;display:block">
+				<div id="load_avg_chart"></div>
+			</div>
+			<div style="margin-left:100px">
+				<div>
+					<h4>Temperature distribution</h4>
+					<div id="temp_chart">
+						Current filter: <span class='filter'></span>
+					</div>
 				</div>
 			</div>
 			<div class='row_2' style="margin-left:100px">
@@ -56,25 +76,29 @@
 					<div id='year_chart'></div>
 				</div>
 				<div>
-					<p>Day of week</p>
+					<h4>Day of week</h4>
 					<div id="week_chart"></div>
 				</div>
 				<div>
-					<p>Seasonal</p>
+					<h4>Seasonal</h4>
 					<div id="season_chart"></div>
 				</div>
 				<div>
-					<p>Monthly</p>
+					<h4>Monthly</h4>
 					<div id='month_chart'></div>
 				</div>
 				
 			</div>
-			<div style="margin-left:100px">
-				<div>
-					<p>Temperature distribution</p>
-					<div id="temp_chart"></div>
-				</div>
+			
+			<!--
+			<div class='dc-data-count'>
+			 	<span class='filter-count'></span>
+			 	selected out of <span class='total-count'></span> records.
 			</div>
+			<div class='dc-data-table'>
+		   </div>
+		   -->
+
 		</div>
 	</div>
 	<script src="lib/jquery.min.js"></script>
