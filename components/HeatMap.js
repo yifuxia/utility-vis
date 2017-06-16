@@ -103,7 +103,7 @@ class HeatMap extends React.Component {
                    
               }   
                {
-                ['Mon','Thu','Sun'].map(el =>
+                ['Sun','Thu','Mon'].map(el =>
                     <p id={'week_label_'+el} key={el} style={{position:'absolute',color:'lightgreen',padding:0,margin:'0 0'}}>{el}</p>
                   )
                    

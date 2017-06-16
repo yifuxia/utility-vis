@@ -149,7 +149,7 @@
 		}
 		
 		//Day of Week label 
-		['Mon','Thu','Sun'].map(function(d, i){
+		['Sun','Thu','Mon'].map(function(d, i){
 			var div = document.getElementById('week_label_'+d)
 			var pos = createVector(-320,0, i*33, camera, window.innerWidth, window.innerHeight);
 			div.style.left = pos.x + 'px';
@@ -167,7 +167,13 @@
 					if (INTERSECTED.userdata){
 						INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
 						INTERSECTED.material.color.setHex( 0xa6dba0 );
-						document.getElementById("tooltip").style.display = 'block'
+
+						if ($('#DC_charts').css('display') === 'none'){
+							document.getElementById("tooltip").style.display = 'block'
+						}else{
+							document.getElementById("tooltip").style.display = 'none'
+						}
+					
 						document.getElementById("tooltip").style.left = mouseX + 10 + 'px'
 						document.getElementById("tooltip").style.top = mouseY + 'px'
 						$('#tooltip-date').text('Date: '+ INTERSECTED.userdata.date)

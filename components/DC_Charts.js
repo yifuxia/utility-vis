@@ -31,6 +31,7 @@ class DC_Charts extends React.Component {
     let month_chart = dc.rowChart('#month_chart');
     let week_chart = dc.rowChart('#week_chart');
     let season_chart = dc.pieChart('#season_chart');
+    let location_chart = dc.bubbleChart('#location_chart');
     let dataCount = dc.dataCount('.dc-data-count');
     let dataTable = dc.dataTable('.dc-data-table');
     
@@ -56,6 +57,29 @@ class DC_Charts extends React.Component {
         return {count:0, total:0}
       }
     );
+
+    let location = data.dimension(function(d){
+      if (d.NAME == 'ATLANTIC CITY ELECTRIC'){
+        return "ACE"
+      }
+      return d.NAME
+    });
+    let location_group = location.group().reduce(
+      function(p, v){
+        ++p.count
+        p.total += v.daily_load
+        return p
+      },
+      function(p, v){
+        --p.count
+        p.total -= v.daily_load
+        return p
+      },
+      function(){
+        return {count:0, total:0}
+      }
+    );
+;
 
     let year = data.dimension(d => d.year);
     let year_group = year.group().reduceSum(d => d.daily_load);
@@ -186,6 +210,53 @@ class DC_Charts extends React.Component {
       .group(season_group)
       .colors(season_colors);
 
+      location_chart
+      .width(800)
+      .height(250)
+      .transitionDuration(1500)
+      .margins({ top: 10, right: 50, bottom: 30, left: 60 })
+      .dimension(location)
+      .group(location_group)
+      .colors(['#66c2a5','#fc8d62','#8da0cb'])
+      .colorDomain([0,1,2])
+      .colorAccessor(function (d) {
+            if (d.key == 'PSE&G'){
+              return 0
+            }else if (d.key == 'PECO ENERGY'){
+              return 1
+            }else{
+              return 2
+            }
+        })
+      .keyAccessor(function (p) {
+            return p.value.count;
+        })
+      .valueAccessor(function (p) {
+            return p.value.total / p.value.count;
+        })
+      .radiusValueAccessor(function (p) {
+            return 5;
+      })
+      .maxBubbleRelativeSize(0.1)
+      .xAxisLabel('#days')
+      .yAxisLabel('average daily load')
+      .x(d3.scale.linear())
+      .y(d3.scale.linear())
+      .elasticX(true)
+      .elasticY(true)
+      .r(d3.scale.linear().domain([0, 55]))
+      .xAxisPadding(10)
+      .yAxisPadding(5)
+      .renderHorizontalGridLines(true)
+      .renderVerticalGridLines(true)
+      .renderTitle(true)
+      .title(function (p) {
+            return [
+                '#days: ' + p.value.count,
+                'average daily load: ' + (p.value.total / p.value.count).toFixed(2)
+            ].join('\n');
+        })
+
       let weekmap = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
       week_chart
       .width(250)
@@ -235,7 +306,6 @@ class DC_Charts extends React.Component {
               format: function (d) { return d.NAME; }
           }
       ]).sortBy(function (d) {
-          console.log(d);
             return d.daily_load;
         })
       .order(d3.ascending)
